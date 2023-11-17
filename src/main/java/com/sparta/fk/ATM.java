@@ -1,79 +1,72 @@
 package com.sparta.fk;
 
-public class ATM {
-
-    private int[] values;
-    private int[] quantities;
 
 
+    public class ATM {
 
-    public ATM(int[] denominations, int[] quantities) { //constructor
-        this.values = denominations;
-        this.quantities = quantities;
-    }
+        private static int[] values;
+        private static int[] quantities;
 
-    public void withdrawValue(int amount) {
 
-        int total = 0; // initialise ATM total
-
-        for (int i = 0; i < values.length; i++) { // calculate ATM total
-            total += values[i] * quantities[i];
+        public ATM(int[] denominations, int[] quantities) { //constructor
+            this.values = denominations;
+            this.quantities = quantities;
         }
 
-        if (amount > total) {
-            System.out.printf("Insufficient funds available"); // don't allow withdrawal if not enough notes are available
-        } else {
-            System.out.println("Customer withdraws £" + amount); // prints amount withdrawn
+        public static void withdrawValue(int amount) {
+            int atmTotal = calculateATMTotal();
 
-
-            int[] withdrawnNotes = new int[values.length]; // initialises array for number of each note that is withdrawn
-
-            // Iterates through note types
-            for (int i = 0; i < values.length; i++) {
-                int value = values[i]; // current note value
-
-                int number = amount / values[i]; //max amount of notes of that type you can withdraw
-
-                if (quantities[i] > 0) {
-
-                    int numberWithdrawn = Math.min(number, quantities[i]); // finds smallest number in case there aren't enough notes
-                    quantities[i] -= numberWithdrawn; //takes withdrawn notes out of ATM array
-                    withdrawnNotes[i] = numberWithdrawn; //sets number of notes of that type that are withdrawn
-
-                    amount -= numberWithdrawn * value; //sets amount of money left to withdraw
-
-
-                }
-
-
+            if (amount > atmTotal) {
+                System.out.println("Insufficient funds available");
+                return;
             }
 
+            System.out.println("Customer withdraws £ " + amount);
 
+            int[] withdrawnNotes = new int[values.length];
+
+            for (int i = 0; i < values.length; i++) {
+                int value = values[i];
+                int maxNotesToWithdraw = amount / value;
+                int notesToWithdraw = Math.min(maxNotesToWithdraw, quantities[i]);
+
+                if (notesToWithdraw > 0) {
+                    quantities[i] -= notesToWithdraw;
+                    withdrawnNotes[i] = notesToWithdraw;
+                    amount -= notesToWithdraw * value;
+                }
+            }
+
+            printWithdrawnNotes(withdrawnNotes);
+            System.out.println(getATMBalance());
+        }
+
+        static int calculateATMTotal() { // method to calculate the amount in the ATM
+            int atmTotal = 0;
+            for (int i = 0; i < values.length; i++) {
+                atmTotal += values[i] * quantities[i];
+            }
+            return atmTotal;
+        }
+
+        private static void printWithdrawnNotes(int[] withdrawnNotes) { // a method to print the notes that have been withdrawn
             for (int i = 0; i < values.length; i++) {
                 if (withdrawnNotes[i] > 0) {
-                    System.out.println(withdrawnNotes[i] + " x £" + values[i]); // prints notes withdrawn
+                    System.out.println(withdrawnNotes[i] + " x £" + values[i]);
                 }
-
-
             }
-
-            System.out.println(getATMBalance()); //prints notes still in ATM
-
-
-        }
-    }
-
-    private String getATMBalance() {
-        System.out.println("\n" +"Value quantity of units");
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < values.length; i++) {
-            result.append(values[i]).append(" ").append(quantities[i]).append("\n");
-
-
         }
 
-        String finalString = result.toString();
+        static String getATMBalance() { // a method to return a string of the amount of each money type left in the ATM
+            System.out.println("\nValue quantity of units");
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < values.length; i++) {
+                result.append(values[i]).append(" ").append(quantities[i]).append("\n");
+            }
+            return result.toString();
+        }
 
-        return finalString;
     }
-}
+
+
+
